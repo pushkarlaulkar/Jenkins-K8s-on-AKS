@@ -34,7 +34,8 @@ Instructions to deploy **Jenkins** on Azure Kubernetes Service
   7. Put the FQDN for which the secret has been created in ` ingress.yml ` file and then run the command ` kubectl -n jenkins apply -f ingress.yml `
   8. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
   9. Access the app using `https://your_domain_name`.
-  10. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+ 10. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+     
      ```
      kubectl -n jenkins scale deployment jenkins --replicas=0
      kubectl -n jenkins apply -f jenkins-dep.yml
