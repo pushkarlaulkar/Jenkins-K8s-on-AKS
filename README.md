@@ -70,7 +70,7 @@ Instructions to deploy **Jenkins** on Azure Kubernetes Service using your own ng
   7. Deploy the `jenkins` deployment & service using the `kubectl` command
 
      ```
-     kubectl -n jenkins apply -f speedtest-dep.yml -f speedtest-svc.yml
+     kubectl -n jenkins apply -f jenkins-dep.yml -f jenkins-svc.yml
      ```
   8. Put the FQDN for which the secret has been created in ` nginx-ingress.yml ` file and then run the command ` kubectl -n jenkins apply -f nginx-ingress.yml `
   9. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
