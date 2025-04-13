@@ -26,6 +26,12 @@ Instructions to deploy **Jenkins** on Azure Kubernetes Service using the default
   7. Put the FQDN for which the secret has been created in ` app-routing-ingress.yml ` file and then run the command ` kubectl -n jenkins apply -f app-routing-ingress.yml `
   8. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
   9. Access the app using `https://your_domain_name`.
+ 10. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+     
+     ```
+     kubectl -n jenkins scale deployment jenkins --replicas=0
+     kubectl -n jenkins apply -f jenkins-dep.yml
+     ```
 
 -----------------------------
 
@@ -68,7 +74,13 @@ Instructions to deploy **Jenkins** on Azure Kubernetes Service using your own ng
      ```
   8. Put the FQDN for which the secret has been created in ` nginx-ingress.yml ` file and then run the command ` kubectl -n jenkins apply -f nginx-ingress.yml `
   9. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
-  10. Access the app using `https://your_domain_name`.
+ 10. Access the app using `https://your_domain_name`.
+ 11. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+     
+     ```
+     kubectl -n jenkins scale deployment jenkins --replicas=0
+     kubectl -n jenkins apply -f jenkins-dep.yml
+     ```
 
 -----------------------------
 
@@ -94,7 +106,13 @@ To install this app using Helm using the default **App Routing** add on, perform
      ```
   5. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
   6. Access the app using `https://your_domain_name`.
-  7. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
+  7. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+     
+     ```
+     kubectl -n jenkins scale deployment jenkins --replicas=0
+     kubectl -n jenkins apply -f jenkins-dep.yml
+     ```
+  8. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
 
 -----------------------------
 
@@ -132,4 +150,10 @@ To install this app using Helm using your own nginx ingress, perform below steps
      ```
   6. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
   7. Access the app using `https://your_domain_name`.
-  8. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
+  8. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+     
+     ```
+     kubectl -n jenkins scale deployment jenkins --replicas=0
+     kubectl -n jenkins apply -f jenkins-dep.yml
+     ```
+  9. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
