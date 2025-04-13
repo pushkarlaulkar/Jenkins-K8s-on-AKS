@@ -14,7 +14,8 @@ spec:
         - {{ .Values.domain_name }}
       secretName: cert-tls  # Uses your existing TLS secret
   rules:
-    - http:
+    - host: {{ .Values.domain_name }}
+      http:
         paths:
           - path: /
             pathType: Prefix
