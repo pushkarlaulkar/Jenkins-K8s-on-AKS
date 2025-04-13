@@ -37,7 +37,7 @@ Instructions to deploy **Jenkins** on Azure Kubernetes Service using the default
 
 Instructions to deploy **Jenkins** on Azure Kubernetes Service using your own nginx ingress
   1. Deploy AKS cluster through Azure portal.
-  2. Create a namespace. ` kubectl create ns speedtest `
+  2. Create a namespace. ` kubectl create ns jenkins `
   3. Create a tls secret named ` cert-tls ` which has the domain's certificate & private key by running below command. The domain's .crt & .key file should already be present.
 
      ```
