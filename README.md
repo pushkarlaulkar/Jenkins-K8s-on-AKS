@@ -87,44 +87,34 @@ Instructions to deploy **Jenkins** on Azure Kubernetes Service using your own ng
 **Helm**
 To install this app using Helm using the default **App Routing** add on, perform below steps
   1. Create a namespace. ` kubectl create ns jenkins `
-  2. Create a tls secret named ` cert-tls ` which has the domain's certificate & private key by running below command. The domain's .crt & .key file should already be present.
-
-     ```
-     kubectl -n jenkins create secret tls cert-tls --cert=domain_name.crt --key=domain_name.key
-     ```
-  3. Run the command ` kubectl -n app-routing-system get svc nginx ` to confirm if a **LoadBalancer** IP has been provisioned.
+  2. Run the command ` kubectl -n app-routing-system get svc nginx ` to confirm if a **LoadBalancer** IP has been provisioned.
 
      ```
      pushkar [ ~ ]$ kubectl -n app-routing-system get svc nginx
      NAME    TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)                      AGE
      nginx   LoadBalancer   10.0.58.180   20.174.45.64   80:32767/TCP,443:30598/TCP   110s
      ```
-  4. Run the command to install **Jenkins**
+  3. Run the command to install **Jenkins**
 
      ```
-     helm install jenkins ./helm --namespace jenkins --set ingressClassName="web-app-routing" --set domain_name=your_preferred_fqdn
+     helm install jenkins ./helm --namespace jenkins --set ingressClassName="web-app-routing" --set domain_name=your_preferred_fqdn --set-file tlsSecret.cert=domain_name.crt --set-file tlsSecret.key=domain_name.key
      ```
-  5. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
-  6. Access the app using `https://your_domain_name`.
-  7. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+  4. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
+  5. Access the app using `https://your_domain_name`.
+  6. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
      
      ```
      kubectl -n jenkins scale deployment jenkins --replicas=0
      kubectl -n jenkins apply -f jenkins-dep.yml
      ```
-  8. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
+  7. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
 
 -----------------------------
 
 **Helm**
 To install this app using Helm using your own nginx ingress, perform below steps
   1. Create a namespace. ` kubectl create ns jenkins `
-  2. Create a tls secret named ` cert-tls ` which has the domain's certificate & private key by running below command. The domain's .crt & .key file should already be present.
-
-     ```
-     kubectl -n jenkins create secret tls cert-tls --cert=domain_name.crt --key=domain_name.key
-     ```
-  3. Deploy Nginx Ingress Controller by running below commands.
+  2. Deploy Nginx Ingress Controller by running below commands.
      
      ```
      helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -136,24 +126,24 @@ To install this app using Helm using your own nginx ingress, perform below steps
      --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"="/" \
      --set controller.service.enableHttps=true
      ```
-  4. Run the command ` kubectl get svc nginx-ingress-ingress-nginx-controller ` to confirm if a **LoadBalancer** IP has been provisioned.
+  3. Run the command ` kubectl get svc nginx-ingress-ingress-nginx-controller ` to confirm if a **LoadBalancer** IP has been provisioned.
 
      ```
      pushkar [ ~ ]$ kubectl get svc nginx-ingress-ingress-nginx-controller
      NAME                                     TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)                      AGE
      nginx-ingress-ingress-nginx-controller   LoadBalancer   10.0.58.180   20.174.45.64   80:32767/TCP,443:30598/TCP   110s
      ```
-  5. Run the command to install **Jenkins**
+  4. Run the command to install **Jenkins**
 
      ```
-     helm install jenkins ./helm --namespace jenkins --set ingressClassName="nginx" --set domain_name=your_preferred_fqdn
+     helm install jenkins ./helm --namespace jenkins --set ingressClassName="nginx" --set domain_name=your_preferred_fqdn --set-file tlsSecret.cert=domain_name.crt --set-file tlsSecret.key=domain_name.key
      ```
-  6. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
-  7. Access the app using `https://your_domain_name`.
-  8. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
+  5. Run `kubectl -n jenkins get ingress` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
+  6. Access the app using `https://your_domain_name`.
+  7. To upgrade the application, first scale the deployment to 0, change the image and then apply the new deployment again.
      
      ```
      kubectl -n jenkins scale deployment jenkins --replicas=0
      kubectl -n jenkins apply -f jenkins-dep.yml
      ```
-  9. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
+  8. Uninstall the app using `helm uninstall jenkins --namespace jenkins`.
