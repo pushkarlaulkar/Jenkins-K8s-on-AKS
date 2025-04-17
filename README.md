@@ -237,3 +237,93 @@ To install this app using ArgoCD, perform below steps
      ```
      kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode && echo
      ```
+
+-----------------------------
+
+**Prometheus** & **Grafana** monitoring using the default **App Routing** add on
+
+To install the Prometheus stack, perform below steps
+   1. Apply the monitoring stack manifest
+
+      ```
+      helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      helm repo update
+      helm install kube-prometheus prometheus-community/kube-prometheus-stack --create-namespace --namespace monitoring --set grafana.adminPassword='any_secure_password' --set grafana.service.type=ClusterIP
+      ```
+
+      ✅ This installs :- Prometheus, Grafana, Node Exporter, kube-state-metrics, Alertmanager
+   2. Create a tls secret named ` monitoring-tls ` which has the Grafana domain's certificate & private key by running below command. The Grafana domain's .crt & .key file should already be present.
+
+      ```
+      kubectl -n monitoring create secret tls monitoring-tls --cert=grafana_domain_name.crt --key=grafana_domain_name.key
+      ```
+   3. Run the command ` kubectl -n app-routing-system get svc nginx ` to confirm if a **LoadBalancer** IP has been provisioned.
+
+      ```
+      pushkar [ ~ ]$ kubectl -n app-routing-system get svc nginx
+      NAME    TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)                      AGE
+      nginx   LoadBalancer   10.0.58.180   20.174.45.64   80:32767/TCP,443:30598/TCP   110s
+      ```
+   4. Put the FQDN for which the monitoring secret has been created in ` monitoring-web-app-routing-ingress.yml ` file and then run the command ` kubectl -n monitoring apply -f monitoring-web-app-routing-ingress.yml `
+
+      ```
+      kubectl -n monitoring apply -f monitoring-web-app-routing-ingress.yml
+      ```
+   5. Run ` kubectl -n monitoring get ingress ` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
+   6. Access Grafana using ` https://grafana_domain_name `.
+   7. To get the initial admin user password run the command
+
+      ```
+      kubectl -n monitoring get secrets kube-prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+      ```
+
+-----------------------------
+
+**Prometheus** & **Grafana** monitoring using **Nginx Ingress**
+
+To install the Prometheus stack, perform below steps
+   1. Apply the monitoring stack manifest
+
+      ```
+      helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      helm repo update
+      helm install kube-prometheus prometheus-community/kube-prometheus-stack --create-namespace --namespace monitoring --set grafana.adminPassword='any_secure_password' --set grafana.service.type=ClusterIP
+      ```
+
+      ✅ This installs :- Prometheus, Grafana, Node Exporter, kube-state-metrics, Alertmanager
+   2. Create a tls secret named ` monitoring-tls ` which has the Grafana domain's certificate & private key by running below command. The Grafana domain's .crt & .key file should already be present.
+
+      ```
+      kubectl -n monitoring create secret tls monitoring-tls --cert=grafana_domain_name.crt --key=grafana_domain_name.key
+      ```
+   3. Deploy Nginx Ingress Controller by running below commands.
+
+      ```
+      helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+      helm repo update
+      ```
+      ```
+      helm install nginx-ingress ingress-nginx/ingress-nginx \
+      --set controller.service.externalTrafficPolicy=Local \
+      --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"="/" \
+      --set controller.service.enableHttps=true
+      ```
+  4. Run the command ` kubectl get svc nginx-ingress-ingress-nginx-controller ` to confirm if a **LoadBalancer** IP has been provisioned.
+
+     ```
+     pushkar [ ~ ]$ kubectl get svc nginx-ingress-ingress-nginx-controller
+     NAME                                     TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)                      AGE
+     nginx-ingress-ingress-nginx-controller   LoadBalancer   10.0.58.180   20.174.45.64   80:32767/TCP,443:30598/TCP   110s
+     ```
+  5. Put the FQDN for which the monitoring secret has been created in ` monitoring-nginx-ingress.yml ` file and then run the command ` kubectl -n monitoring apply -f monitoring-nginx-ingress.yml `
+
+     ```
+     kubectl -n monitoring apply -f monitoring-nginx-ingress.yml
+     ```
+  6. Run ` kubectl -n monitoring get ingress ` to retrieve the IP. This may take some time to match with the **LoadBalancer** IP above. Point the domain name in your registrar to the IP address.
+  7. Access Grafana using ` https://grafana_domain_name `.
+  8. To get the initial admin user password run the command
+
+     ```
+     kubectl -n monitoring get secrets kube-prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+     ```
